@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GitHub Thumbnail Downloader</title>
+
+  <!-- DM Sans -->
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Your OKi theme -->
+  <link rel="stylesheet" href="/static/style.css">
+
+  <style>
+    /* page-specific sprinkles that sit on top of your OKi theme */
+    .form-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px}
+    .form-row input[type="text"]{
+      flex:1; padding:12px 14px; border-radius:12px;
+      background:rgba(255,255,255,0.04); border:1px solid var(--border);
+      color:var(--text); outline:none; font-size:1rem;
+    }
+    .form-row input[type="text"]:focus{border-color:var(--accent); box-shadow:0 0 0 6px var(--ring)}
+    .pill{padding:6px 10px; border-radius:999px; border:1px solid var(--border); background:var(--surface)}
+    .thumb{background:var(--card); padding:14px; border-radius:16px; border:1px solid var(--border)}
+    .thumb img{max-width:100%; height:auto; border-radius:12px; display:block}
+    .error{color:#ff9b9b; margin-top:10px}
+  </style>
+
+  <script>
+    // show a loading overlay using your .screen + .spinner classes
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("repo-form");
+      const overlay = document.getElementById("loading");
+      if (form) {
+        form.addEventListener("submit", () => {
+          overlay.classList.remove("hidden");
+        });
+      }
+    });
+  </script>
+</head>
+<body>
+  <div class="bg-grid"></div>
+
+  <header class="site-header">
+    <div class="brand">
+      <svg class="brand__logo" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="g" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#5b5de6"/><stop offset="1" stop-color="#22d3ee"/>
+          </linearGradient>
+        </defs>
+        <rect x="6" y="6" width="36" height="36" rx="10" fill="url(#g)"/>
+        <path d="M16 24h16M24 16v16" stroke="white" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <div class="brand__text">
+        <h1>GitHub Thumbnail Downloader</h1>
+        <p class="muted">Paste a repo URL → preview its Open Graph image → download.</p>
+      </div>
+    </div>
+
+    <div class="status-indicator" title="Ready">
+      <span class="status-dot"></span> Ready
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card hero">
+      <h2>Get the social preview from any public GitHub repo</h2>
+      <p class="muted">Works without a token (scrapes <code>og:image</code>). Add <code>GITHUB_TOKEN</code> to use GraphQL for extra reliability.</p>
+
+      <form id="repo-form" method="post" action="/" class="uploader">
+        <div class="dropzone">
+          <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 16V8m0 0l-3 3m3-3l3 3M6 20h12a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-1M6 20a2 2 0 0 1-2-2v-4c0-1.1.9-2 2-2h1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div class="dz-text">
+            <strong>Paste your repository URL below</strong>
+            <span>Example: <code>https://github.com/owner/repo</code></span>
+          </div>
+        </div>
+
+        <div class="controls">
+          <div class="control" style="flex:1">
+            <label class="muted" for="repo_url">Repository URL</label>
+            <input type="text" id="repo_url" name="repo_url" placeholder="https://github.com/owner/repo" required />
+          </div>
+          <div class="actions">
+            <button class="btn btn-ghost" type="reset">Clear</button>
+            <button class="btn-primary" type="submit">Fetch &amp; Download</button>
+          </div>
+        </div>
+      </form>
+
+      {% if error %}
+        <div class="error">{{ error }}</div>
+      {% endif %}
+
+      {% if result %}
+      <div class="results">
+        <div class="result">
+          <div class="result__meta">
+            <div class="result__name">
+              <span class="pill">Owner: <strong>{{ result.owner }}</strong></span>
+              <span class="pill">Repo: <strong>{{ result.repo }}</strong></span>
+            </div>
+            <div class="result__actions">
+              <a class="btn-primary" href="{{ result.download_href }}">Download image</a>
+              <a class="btn" href="{{ result.image_url }}" target="_blank" rel="noreferrer">Open image URL</a>
+            </div>
+          </div>
+          <div class="thumb">
+            <img class="result__img" src="{{ result.image_url }}" alt="Repository Open Graph image">
+          </div>
+          {% if result and result.filename %}
+            <p class="muted">Saved as <code>{{ result.filename }}</code>.</p>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Built with FastAPI &amp; DM Sans</p>
+  </footer>
+
+  <!-- loading overlay -->
+  <div id="loading" class="screen hidden" aria-hidden="true">
+    <div class="loading-box">
+      <div class="spinner"></div>
+      <div id="progress-text">Fetching preview…</div>
+    </div>
+  </div>
+</body>
+</html>
