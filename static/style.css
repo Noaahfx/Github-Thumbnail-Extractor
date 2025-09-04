@@ -1,32 +1,14 @@
-/* ===========================
-   GitHub Thumbnail Downloader
-   Custom theme (DM Sans)
-   =========================== */
-
-/* --------- Reset & Base --------- */
 * { box-sizing: border-box; }
 html, body { height: 100%; }
 html { -webkit-text-size-adjust: 100%; }
-body {
-  margin: 0;
-  font-family: "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
-    Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-  line-height: 1.45;
-  background: radial-gradient(1200px 800px at 10% -10%, rgba(62,166,255,.08), transparent 60%),
-              radial-gradient(1200px 800px at 110% 10%, rgba(91,93,230,.08), transparent 60%),
-              #0b0f14;
-  color: var(--text);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
 
-/* --------- Theme tokens --------- */
 :root{
   --bg:#0b0f14;
   --text:#e7eef6;
   --muted:#9fb0c3;
   --card:rgba(16,22,30,0.7);
   --surface:rgba(20,26,36,0.6);
+  --surface-solid:#141a24;
   --border:rgba(75, 92, 118, 0.35);
   --accent:#3ea6ff;
   --accent-2:#5b5de6;
@@ -38,44 +20,64 @@ body {
   --container: 1100px;
 }
 
-/* --------- Subtle grid backdrop --------- */
+body{
+  margin:0;
+  font-family:"DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  line-height:1.45;
+  background: var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+}
+
 .bg-grid{
   position: fixed; inset: 0; z-index: -1; pointer-events: none;
   background-image:
-    repeating-linear-gradient(to right,
-      rgba(255,255,255,.06) 0,
-      rgba(255,255,255,.06) 1px,
-      transparent 1px,
-      transparent 40px
-    ),
-    repeating-linear-gradient(to bottom,
-      rgba(255,255,255,.06) 0,
-      rgba(255,255,255,.06) 1px,
-      transparent 1px,
-      transparent 40px
-    );
-  opacity: .10;
-  background-attachment: fixed; /* avoids scroll tearing */
+    radial-gradient(900px 650px at 10% -10%, rgba(62,166,255,.10), transparent 60%),
+    radial-gradient(900px 650px at 110% 10%, rgba(91,93,230,.10), transparent 60%),
+    repeating-linear-gradient(to right, rgba(255,255,255,.06) 0 1px, transparent 1px 40px),
+    repeating-linear-gradient(to bottom, rgba(255,255,255,.06) 0 1px, transparent 1px 40px);
+  background-repeat: no-repeat, no-repeat, repeat, repeat;
+  background-size: auto, auto, 40px 40px, 40px 40px;
+  opacity:.08;
   will-change: transform;
 }
 
-/* --------- Layout --------- */
 .container{ max-width: var(--container); margin: 0 auto; padding: 24px; }
 .site-header{
   max-width: var(--container); margin: 0 auto; padding: 24px 24px 0 24px;
   display:flex; align-items:center; justify-content:space-between; gap:16px;
 }
 .brand{ display:flex; align-items:center; gap:14px; }
-.brand__logo{ width:42px; height:42px; flex:0 0 auto; filter: drop-shadow(0 6px 12px rgba(0,0,0,.35)); }
+.brand__logo{ width:64px; height:64px; flex:0 0 auto; filter: drop-shadow(0 6px 12px rgba(0,0,0,.35)); }
 .brand__text h1{ margin:0; font-size:1.35rem; letter-spacing:.2px; }
 .brand__text .muted{ margin:.15rem 0 0; }
 
-.site-footer{
-  max-width: var(--container); margin: 24px auto 40px; padding: 0 24px;
-  color: var(--muted); text-align:center;
+.brand{ gap: 16px; }
+
+@media (max-width: 720px){
+  .brand__logo{ width: 56px; height: 56px; }
 }
 
-/* --------- Typography --------- */
+.site-footer{
+  max-width: var(--container);
+  margin: 40px auto 0;
+  padding: 0 24px calc(32px + env(safe-area-inset-bottom));
+  text-align:center;
+}
+.site-footer p{
+  display:inline-block;
+  margin:0;
+  padding:10px 16px;
+  border:1px solid var(--border);
+  border-radius:999px;
+  background:rgba(255,255,255,.04);
+  color:var(--muted);
+  box-shadow: 0 6px 18px rgba(0,0,0,.25);
+}
+
 h1,h2,h3{ color: var(--text); }
 h2{ font-size:1.25rem; margin:0 0 .35rem; }
 p{ margin: .35rem 0; }
@@ -87,7 +89,6 @@ code{
   font-size:.95em;
 }
 
-/* --------- Card / Hero --------- */
 .card{
   background: var(--card);
   border: 1px solid var(--border);
@@ -97,7 +98,6 @@ code{
 }
 .hero { padding: 20px; }
 
-/* --------- Uploader / Form --------- */
 .uploader { margin-top: 10px; display:flex; flex-direction:column; gap:14px; }
 
 .dropzone{
@@ -136,8 +136,11 @@ input[type="text"]:focus{
   box-shadow: 0 0 0 6px var(--ring);
 }
 
-/* --------- Buttons --------- */
 .actions{ display:flex; gap:10px; flex-wrap:wrap; }
+
+a.btn, a.btn-primary, a.btn-ghost{ text-decoration:none; }
+a.btn:hover, a.btn-primary:hover, a.btn-ghost:hover{ text-decoration:none; }
+
 .btn, .btn-primary, .btn-ghost{
   appearance:none; border: 1px solid var(--border); cursor:pointer;
   padding: 11px 14px; border-radius: var(--radius-md);
@@ -150,8 +153,7 @@ input[type="text"]:focus{
 
 .btn-primary{
   border: 0;
-  background:
-    linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
   color: #03131f;
   box-shadow: 0 10px 24px rgba(62,166,255,.28), inset 0 1px 0 rgba(255,255,255,.25);
 }
@@ -168,7 +170,6 @@ input[type="text"]:focus{
 }
 .btn-ghost:hover{ background: rgba(255,255,255,.05); }
 
-/* --------- Pills --------- */
 .pill{
   display:inline-flex; align-items:center; gap:6px;
   padding: 6px 10px;
@@ -178,7 +179,6 @@ input[type="text"]:focus{
   color: var(--text);
 }
 
-/* --------- Results --------- */
 .results{ margin-top: 16px; display:grid; gap:16px; }
 .result{ display:grid; gap:12px; }
 .result__meta{
@@ -194,11 +194,13 @@ input[type="text"]:focus{
   padding: 14px;
 }
 .result__img{
-  width:100%; height:auto; display:block; border-radius: 12px;
+  width:100%;
+  height:auto;
+  display:block;
+  border-radius: 12px;
   box-shadow: 0 12px 26px rgba(0,0,0,.35);
 }
 
-/* --------- Header Status --------- */
 .status-indicator{
   display:inline-flex; align-items:center; gap:8px; color: var(--muted);
   background: rgba(255,255,255,.04);
@@ -209,7 +211,6 @@ input[type="text"]:focus{
   background: #2bd576; box-shadow: 0 0 0 4px rgba(43,213,118,.18);
 }
 
-/* --------- Loading Overlay --------- */
 .screen{
   position: fixed; inset: 0; display:flex; align-items:center; justify-content:center;
   background: rgba(5,9,14,.55);
@@ -230,11 +231,9 @@ input[type="text"]:focus{
 }
 @keyframes spin{ to { transform: rotate(360deg); }}
 
-/* --------- Utilities --------- */
 .site-header .brand__text p{ margin:0; }
 .card.hero h2 + p{ margin-top:.2rem; }
 
-/* --------- Responsive --------- */
 @media (max-width: 720px){
   .site-header{ padding: 18px 18px 0; }
   .container{ padding: 18px; }
@@ -244,25 +243,9 @@ input[type="text"]:focus{
   .actions .btn, .actions .btn-primary, .actions .btn-ghost{ width:100%; text-align:center; }
 }
 
-/* --------- Motion prefs --------- */
 @media (prefers-reduced-motion: reduce){
   .btn, .btn-primary, .btn-ghost, input[type="text"]{ transition:none !important; }
   .spinner{ animation: none; border-top-color: var(--accent); }
 }
 
-body, button, input, textarea, select {
-  font-family: "DM Sans", sans-serif;
-}
-
-:root{
-  /* keep your original variables, add a solid surface just for image areas */
-  --surface-solid: #141a24;
-}
-
-.result__img{
-  width: 100%;
-  height: auto;
-  display: block;   /* no stray gaps */
-  border-radius: 12px;
-  box-shadow: 0 12px 26px rgba(0,0,0,.35);
-}
+body, button, input, textarea, select { font-family: "DM Sans", sans-serif; }

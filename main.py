@@ -13,14 +13,12 @@ app = FastAPI(title="GitHub OG Thumbnail Downloader")
 app.mount("/static", StaticFiles(directory=str(APP_DIR / "static")), name="static")
 templates = Jinja2Templates(directory=str(APP_DIR / "templates"))
 
-# Use a browser-like UA; some CDNs are touchy about custom UA strings
 BROWSER_UA = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 )
 GITHUB_GRAPHQL = "https://api.github.com/graphql"
 
-# Reuse TCP connections
 SESSION = requests.Session()
 
 def parse_owner_repo(repo_url: str):
@@ -79,12 +77,10 @@ def find_cached(owner: str, repo: str) -> pathlib.Path | None:
     return None
 
 def download_with_retry(url: str, owner: str, repo: str, max_retries: int = 5) -> pathlib.Path:
-    # If already cached, reuse
     cached = find_cached(owner, repo)
     if cached:
         return cached
 
-    # Build headers that look like a browser request (helps with some CDNs)
     headers = {
         "User-Agent": BROWSER_UA,
         "Accept": "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
@@ -97,13 +93,11 @@ def download_with_retry(url: str, owner: str, repo: str, max_retries: int = 5) -
     for attempt in range(1, max_retries + 1):
         r = SESSION.get(url, headers=headers, stream=True, timeout=60)
         if r.status_code == 429:
-            # Exponential backoff with jitter
             time.sleep(backoff + random.uniform(0, 0.35))
             backoff *= 2
             continue
         r.raise_for_status()
 
-        # Pick an extension from content-type (default .jpg)
         ext = ".jpg"
         ctype = (r.headers.get("Content-Type") or "").lower().split(";")[0]
         guess = mimetypes.guess_extension(ctype) if ctype else None
@@ -120,7 +114,6 @@ def download_with_retry(url: str, owner: str, repo: str, max_retries: int = 5) -
                     f.write(chunk)
         return out_path
 
-    # If we get here, we kept getting 429
     raise RuntimeError(
         "GitHub rate-limited the image CDN (429). Try again shortly, or use "
         "'Open image URL' and save it directly in your browser."
@@ -135,8 +128,6 @@ def fetch(request: Request, repo_url: str = Form(...)):
     try:
         owner, repo, img_url = resolve_og(repo_url)
 
-        # IMPORTANT CHANGE: do NOT download here.
-        # We only show preview + a Download button that calls /save.
         return templates.TemplateResponse("index.html", {
             "request": request,
             "result": {
@@ -157,7 +148,6 @@ def save(owner: str = Query(...), repo: str = Query(...), img_url: str = Query(.
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=429 if "rate-limited" in str(e).lower() else 400)
 
-# Optional: tiny JSON API for fetch-based clients
 @app.get("/api/og")
 def api_og(url: str = Query(..., description="GitHub repo URL")):
     try:
